@@ -1282,12 +1282,6 @@
                 "text_fragment": "THE COMMUNIST PARTY"
             },
             {
-                "end": 151,
-                "start": 150,
-                "technique": "Reductio ad hitlerum",
-                "text_fragment": "\n"
-            },
-            {
                 "end": 178,
                 "start": 152,
                 "technique": "Slogans",
