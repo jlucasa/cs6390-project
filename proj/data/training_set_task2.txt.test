@@ -1373,7 +1373,7 @@
             },
             {
                 "start": 29,
-                "end": 38,
+                "end": 37,
                 "technique": "Loaded Language",
                 "text_fragment": "VIOLENCE"
             }
@@ -1577,9 +1577,9 @@
         "labels": [
             {
                 "start": 15,
-                "end": 27,
+                "end": 26,
                 "technique": "Loaded Language",
-                "text_fragment": "Threatening "
+                "text_fragment": "Threatening"
             }
         ]
     },
@@ -2634,9 +2634,9 @@
             },
             {
                 "start": 12,
-                "end": 17,
+                "end": 16,
                 "technique": "Loaded Language",
-                "text_fragment": "Evil "
+                "text_fragment": "Evil"
             },
             {
                 "start": 0,
@@ -5356,9 +5356,9 @@
         "labels": [
             {
                 "start": 17,
-                "end": 38,
+                "end": 37,
                 "technique": "Smears",
-                "text_fragment": "WORST PRESIDENT EVER "
+                "text_fragment": "WORST PRESIDENT EVER"
             },
             {
                 "start": 45,
@@ -5642,7 +5642,7 @@
     },
     {
         "id": "303_batch_2",
-        "text": "NIKE CALLED AND SAID THEY WERE BEING LOOTED-\nBY BLACK LIVES MATTER.\n\nI TOLD THEM TO CALL THE NFL FOR HELP!",
+        "text": "NIKE CALLED AND SAID THEY WERE BEING LOOTED\nBY BLACK LIVES MATTER.\n\nI TOLD THEM TO CALL THE NFL FOR HELP!",
         "labels": [
             {
                 "start": 37,
@@ -7842,19 +7842,19 @@
         "labels": [
             {
                 "start": 14,
-                "end": 116,
+                "end": 117,
                 "technique": "Smears",
                 "text_fragment": "KAMALA HARRİS HAS PROVEN THAT SHE WILL DESTROY INNOCENT PEOPLE AND GOOD FAMILIES TO ADVANCE HER AGENDA"
             },
             {
-                "start": 53,
-                "end": 76,
+                "start": 54,
+                "end": 77,
                 "technique": "Loaded Language",
                 "text_fragment": "DESTROY INNOCENT PEOPLE"
             },
             {
-                "start": 61,
-                "end": 94,
+                "start": 62,
+                "end": 95,
                 "technique": "Name calling/Labeling",
                 "text_fragment": "INNOCENT PEOPLE AND GOOD FAMILIES"
             }
@@ -8298,9 +8298,9 @@
         "labels": [
             {
                 "start": 23,
-                "end": 52,
+                "end": 51,
                 "technique": "Black-and-white Fallacy/Dictatorship",
-                "text_fragment": "IS SHE MY WIFE OR MY SISTER? "
+                "text_fragment": "IS SHE MY WIFE OR MY SISTER?"
             },
             {
                 "start": 54,
@@ -8749,9 +8749,9 @@
         "labels": [
             {
                 "start": 0,
-                "end": 86,
+                "end": 85,
                 "technique": "Smears",
-                "text_fragment": "Welcome back to another episode of \"Things l'd Rather Do Than Listen to Nancy Pelosi\"\n"
+                "text_fragment": "Welcome back to another episode of \"Things l'd Rather Do Than Listen to Nancy Pelosi\""
             }
         ]
     },
@@ -8990,9 +8990,9 @@
             },
             {
                 "start": 27,
-                "end": 37,
+                "end": 36,
                 "technique": "Exaggeration/Minimisation",
-                "text_fragment": "TRUCKLOAD "
+                "text_fragment": "TRUCKLOAD"
             }
         ]
     },
@@ -9833,9 +9833,9 @@
             },
             {
                 "start": 0,
-                "end": 22,
+                "end": 21,
                 "technique": "Smears",
-                "text_fragment": "IMPEACH THE DEMOCRATS\n"
+                "text_fragment": "IMPEACH THE DEMOCRATS"
             },
             {
                 "start": 23,
@@ -10243,9 +10243,9 @@
         "labels": [
             {
                 "start": 0,
-                "end": 168,
+                "end": 167,
                 "technique": "Smears",
-                "text_fragment": "If you truly believe I can hear your thoughts and prayers wherever you are\nThen it doesn't make a lot of sense to crowd together in a church during a pandemic does it?\n"
+                "text_fragment": "If you truly believe I can hear your thoughts and prayers wherever you are\nThen it doesn't make a lot of sense to crowd together in a church during a pandemic does it?"
             },
             {
                 "start": 7,

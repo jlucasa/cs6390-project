@@ -1,5 +1,7 @@
 from torch import nn, functional, optim
 import torch
+import pandas as pd
+import json
 
 # hyperparameters
 
@@ -7,9 +9,15 @@ EMBEDDING_DIM = 40
 HIDDEN_DIM = 40
 VOCAB_SIZE = -1
 TAG_SIZE = -1
-NUM_EPOCHS = 20
+NUM_EPOCHS = 5
 LOSS_FUNCTION = nn.NLLLoss()
 OPTIMIZER = None
+
+
+class orth_mapping:
+    def __init__(self, tok, orth):
+        self.tok = tok
+        self.orth = orth
 
 
 class forward_lstm_linear(nn.Module):
@@ -51,14 +59,47 @@ def make_prediction(model, inputs, tag_map):
 
     return [tag_map[pred] for pred in predictions]
 
-#
-# def argmax(vector):
-#     _, idx = torch.max(vector, 1)
-#     return idx.item()
 
-# class bi_lstm(nn.Module):
-#     def __init__(self):
-#         super(bi_lstm, self).__init__()
-#
-#     def _score_emission_transition(self, features, tags):
+def strip_ws_from_tfs(fname):
+    data = {}
+
+    with open(fname, 'r') as file:
+        data = json.load(file)
+
+        for entry in data:
+            label_set = entry['labels']
+
+            for label in label_set:
+                orig_tf = label['text_fragment']
+                new_tf = label['text_fragment'].strip()
+
+                if new_tf != orig_tf:
+                    print(f'found incorrect text fragment: "{orig_tf}", replacing with "{new_tf}"')
+                    label['text_fragment'] = new_tf
+                    label['end'] -= (len(orig_tf) - len(new_tf))
+
+    print(f'saving to {fname}.test')
+
+    with open(f'{fname}.test', 'w+') as file:
+        json.dump(data, file)
+
+    # df = pd.read_json(fname)
+
+    # for index, row in df.iterrows():
+    #     label_set = row['labels']
+    #
+    #     for label in label_set:
+    #         orig_tf = label['text_fragment']
+    #         new_tf = label['text_fragment'].strip()
+    #
+    #         if new_tf != orig_tf:
+    #             print(f'found incorrect text fragment: "{orig_tf}", replacing with "{new_tf}"')
+    #             label['text_fragment'] = new_tf
+    #             label['end'] -= (len(orig_tf) - len(new_tf))
+    #
+    # print(f'saving to {fname}.test')
+    # dictionary = df.to_dict()
+
+
+
 
