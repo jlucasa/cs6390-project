@@ -1,4 +1,5 @@
 import sys
+import json
 from collections import defaultdict
 
 import numpy as np
@@ -53,6 +54,20 @@ def is_valid_word(word):
 
 def get_tags(start, end, technique, curr_tags):
     to_ret = []
+    #
+    # for i in range(0, start):
+    #     to_ret.append(curr_tags[i])
+    #
+    # for i in range(start, end):
+    #     if curr_tags[i] == 'O':
+    #         to_ret.append(technique)
+    #     else:
+    #         to_ret.append(curr_tags[i])
+    #
+    # for i in range(end, len(curr_tags)):
+    #     to_ret.append(curr_tags[i])
+    #
+    # return to_ret
 
     if start == end - 1 and curr_tags[start] == 'O':
         to_ret = [f'U-{technique}' if i == start else curr_tags[i] for i in range(len(curr_tags))]
@@ -204,45 +219,64 @@ def process_df_and_vocab(df, vocab, techniques, abbrev_map):
     return df, vocab
 
 
+def get_dfs_and_vocab(training_path, testing_path, vocab, techniques, abbrev_map):
+    training_df = load_df_from_file(training_path)
+    testing_df = load_df_from_file(testing_path)
+    training_df, vocab = process_df_and_vocab(training_df, vocab, techniques, abbrev_map)
+    testing_df, vocab = process_df_and_vocab(testing_df, vocab, techniques, abbrev_map)
+
+    return training_df, testing_df, vocab
+
+
 def main():
+    techniques_from_file = load_from_file('./data/techniques_list_task1-2.txt')
+    techniques_sequence = defaultdict(lambda: -1)
+
+    techniques_abbrev_map = {
+        x: ''.join(e[0] if e[0].isalpha() else e[1] for e in x.split()).upper()
+        for x in techniques_from_file
+    }
+
+    techniques_abbrev_map['Slogans'] = 'Sl'
+    techniques_abbrev_map['Smears'] = 'Sm'
+    vocab = defaultdict(lambda: -1)
+
+    # Utilize a BILOU tagging scheme. All tags are mapped to a specific integer value.
+    for tech in list(techniques_abbrev_map.values()):
+        techniques_sequence[f'B-{tech}'] = len(techniques_sequence)
+        techniques_sequence[f'I-{tech}'] = len(techniques_sequence)
+        techniques_sequence[f'L-{tech}'] = len(techniques_sequence)
+        techniques_sequence[f'U-{tech}'] = len(techniques_sequence)
+
+    # 'O' == any word outside a set of tags. Since it's not technique-specific, a
+    # per-technique approach as seen above is not required.
+    techniques_sequence['O'] = len(techniques_sequence)
+
+    reverse_techniques_sequence = {val: key for key, val in techniques_sequence.items()}
+    reverse_techniques_abbrev_map = {val: key for key, val in techniques_abbrev_map.items()}
+
+    training_df, testing_df, vocab = get_dfs_and_vocab(
+        './data/training_set_task2.txt.converted',
+        './data/test_set_task2.txt.converted',
+        vocab,
+        techniques_sequence,
+        techniques_abbrev_map
+    )
+
+    # training_df, vocab = process_df_and_vocab(training_df, vocab, techniques_sequence, techniques_abbrev_map)
+    # testing_df, vocab = process_df_and_vocab(testing_df, vocab, techniques_sequence, techniques_abbrev_map)
+
     if sys.argv[1] == '--train':
-        training_df = load_df_from_file('./data/training_set_task2.txt.converted')
-        testing_df = load_df_from_file('./data/test_set_task2.txt.converted')
-        dev_df = load_df_from_file('./data/dev_set_task2.txt.converted')
-        techniques_from_file = load_from_file('./data/techniques_list_task1-2.txt')
-        techniques_sequence = defaultdict(lambda: -1)
+        # dev_df = load_df_from_file('./data/dev_set_task2.txt.converted')
 
-        techniques_abbrev_map = {
-            x: ''.join(e[0] if e[0].isalpha() else e[1] for e in x.split()).upper()
-            for x in techniques_from_file
-        }
-
-        techniques_abbrev_map['Slogans'] = 'Sl'
-        techniques_abbrev_map['Smears'] = 'Sm'
-
-        # Utilize a BILOU tagging scheme. All tags are mapped to a specific integer value.
-        for tech in list(techniques_abbrev_map.values()):
-            techniques_sequence[f'B-{tech}'] = len(techniques_sequence)
-            techniques_sequence[f'I-{tech}'] = len(techniques_sequence)
-            techniques_sequence[f'L-{tech}'] = len(techniques_sequence)
-            techniques_sequence[f'U-{tech}'] = len(techniques_sequence)
-
-        # 'O' == any word outside a set of tags. Since it's not technique-specific, a
-        # per-technique approach as seen above is not required.
-        techniques_sequence['O'] = len(techniques_sequence)
-
-        reverse_techniques_sequence = {val: key for key, val in techniques_sequence.items()}
-        reverse_techniques_abbrev_map = {val: key for key, val in techniques_abbrev_map.items()}
-
-        vocab_train_sequence = {}
-
-        vocab = defaultdict(lambda: -1)
-
-        training_df, vocab = process_df_and_vocab(training_df, vocab, techniques_sequence, techniques_abbrev_map)
-        testing_df, vocab = process_df_and_vocab(testing_df, vocab, techniques_sequence, techniques_abbrev_map)
-
-        # training_df.to_json('./data/training_set_task2.txt.use')
-        # testing_df.to_json('./data/testing_set_task2.txt.use')
+        # training_df.to_json('./data/training_set_task2.txt.use', orient='records')
+        # testing_df.to_json('./data/testing_set_task2.txt.use', orient='records')
+        # with open('./data/vocab.txt', 'w+') as file:
+        #     json.dump(vocab, file)
+        # training_df = load_df_from_file('./data/training_set_task2.txt.use')
+        # testing_df = load_df_from_file('./data/test_set_task2.txt.use')
+        # with open('./data/vocab.txt', 'r') as file:
+        #     vocab = json.load(file)
 
         token_inputs, tag_inputs = model_and_utils.get_padded_tokens_and_tags(training_df, techniques_sequence)
         # training_df = model_and_utils.pad_tokens_and_tags(training_df, techniques_sequence)
@@ -253,28 +287,47 @@ def main():
             vocab_size=len(vocab) + 1,
             tag_size=len(techniques_sequence),
             learning_rate=0.0005,
-            epochs=25,
+            epochs=35,
             batch_size=1000
         )
 
         print('Creating model')
 
         model = model_and_utils.create_model(hparams)
-        losses = []
 
         print('Training model on training data...')
 
-        losses = model_and_utils.train_model_and_get_losses(hparams, token_inputs, tag_inputs, model)
+        history = model_and_utils.train_model_and_get_losses(hparams, token_inputs, tag_inputs, model)
 
         # for index, row in training_df.iterrows():
         #     tokens = [mapping.orth for mapping in row['padded_orth_mappings']]
         #     tags = [mapping.orth for mapping in row['padded_tag_mappings']]
         #     losses = model_and_utils.train_model_and_get_losses(hparams, tokens, tags, model)
 
-        model_and_utils.plot_losses(losses, output_fname='./data/losses-for-training-data.png')
+        model_and_utils.plot_created_model(model, './data/model')
+        model_and_utils.plot_losses(history.history, output_fname='./data/losses-for-training-data')
         model_and_utils.save_model(model, 'trained-model')
     elif sys.argv[1] == '--test':
         model = model_and_utils.load_model('trained-model')
+        token_inputs, tag_inputs = model_and_utils.get_padded_tokens_and_tags(testing_df, techniques_sequence)
+
+        hparams = model_and_utils.hyperparameters(
+            embed_dim=len(token_inputs[0]),
+            hidden_dim=64,
+            vocab_size=len(vocab) + 1,
+            tag_size=len(techniques_sequence),
+            learning_rate=0.0005,
+            epochs=35,
+            batch_size=1000
+        )
+
+        predicted = model.predict_classes(x=token_inputs)
+
+        for pred in predicted:
+            print(pred)
+
+        results = model.evaluate(x=token_inputs, y=tag_inputs, batch_size=hparams.BATCH_SIZE, verbose=1)
+        print('test loss, test acc: ', results)
     else:
         print('Input syntax: project.py <--train_or_--test>')
         exit(1)

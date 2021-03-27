@@ -9,11 +9,13 @@ from tensorflow.keras.utils import to_categorical
 import matplotlib.pyplot as plt
 import numpy as np
 from numpy.random import seed
+from tensorflow_addons.layers import CRF
 import tensorflow
 from tensorflow import keras
 from tensorflow.keras import Model, Input, Sequential
 from tensorflow.keras.layers import LSTM, Embedding, Dropout, TimeDistributed, Bidirectional, Dense
 from tensorflow.keras.optimizers import Adam
+from tensorflow.keras.utils import plot_model
 
 # hyperparameters
 
@@ -82,12 +84,18 @@ def create_model(hparams):
         )
     )
     model.add(LSTM(hparams.HIDDEN_DIM, return_sequences=True, dropout=0.5, recurrent_dropout=0.5))
-    model.add(TimeDistributed(Dense(hparams.TAG_SIZE, activation='relu')))
+    # model.add(Dense(hparams.TAG_SIZE, activation='softmax'))
+    # model.add(CRF(hparams.TAG_SIZE))
+    model.add(TimeDistributed(Dense(hparams.TAG_SIZE, activation='softmax')))
 
     adam = Adam(lr=hparams.LEARNING_RATE, beta_1=0.9, beta_2=0.999)
 
     model.compile(loss='categorical_crossentropy', optimizer='adam', metrics=['accuracy'])
     return model
+
+
+def plot_created_model(model, out_fname):
+    plot_model(model, to_file=f'{out_fname}.png', show_shapes=True)
 
 
 def save_model(model, fname):
@@ -103,7 +111,13 @@ def save_model(model, fname):
 
 
 def load_model(fname):
-    return keras.models.load_model(fname)
+    """
+
+    :param fname:
+    :return:
+    :rtype: Sequential
+    """
+    return keras.models.load_model(fname, compile=True)
 
 
 def train_model_and_get_losses(hparams, tokens, tags, model):
@@ -112,21 +126,29 @@ def train_model_and_get_losses(hparams, tokens, tags, model):
     :param hparams:
     :type hparams: hyperparameters
     :param tokens:
-    :type tags: list
+    :type tags: np.array
     :param tags:
-    :type tags: list
+    :type tags: np.array
     :param model:
     :type model: Sequential
     """
-    losses = []
-    tags = np.array(tags)
-    tokens = np.array(tokens)
 
-    for i in range(hparams.EPOCHS):
-        fitted = model.fit(x=tokens, y=tags, batch_size=hparams.BATCH_SIZE, verbose=1, epochs=1, validation_split=0.2)
-        losses.append(fitted.history['loss'][0])
+    history = model.fit(
+        x=tokens,
+        y=tags,
+        batch_size=hparams.BATCH_SIZE,
+        verbose=1,
+        epochs=hparams.EPOCHS,
+        validation_split=0.2
+    )
 
-    return losses
+    # history = model.fit(x=tokens, y=tags, batch_size=hparams.BATCH_SIZE, verbose=1, epochs=hparams.EPOCHS, validation_split=0.2)
+
+    # for i in range(hparams.EPOCHS):
+    #     fitted = model.fit(x=tokens, y=tags, batch_size=hparams.BATCH_SIZE, verbose=1, epochs=1, validation_split=0.2)
+    #     losses.append(fitted.history['loss'][0])
+
+    return history
 
 
 def get_tensor_from_sentence(sent, mapper):
@@ -149,12 +171,27 @@ def make_prediction(model, inputs, tag_map):
     return [tag_map[pred] for pred in predictions]
 
 
-def plot_losses(losses, output_fname):
-    x = np.arange(0, len(losses))
-    y = np.array(losses)
+def plot_losses(history, output_fname):
+    plt.title('Loss')
+    plt.plot(history['loss'], label='training')
+    plt.plot(history['val_loss'], label='validation')
+    plt.legend()
+    plt.savefig(f'{output_fname}-loss.png', bbox_inches='tight')
 
-    plt.plot(x, y)
-    plt.savefig(output_fname, bbox_inches='tight')
+    plt.close()
+
+    plt.title('Accuracy')
+    plt.plot(history['accuracy'], label='training')
+    plt.plot(history['val_accuracy'], label='validation')
+    plt.legend()
+    plt.savefig(f'{output_fname}-acc.png', bbox_inches='tight')
+
+
+    # x = np.arange(0, len(losses))
+    # y = np.array(losses)
+    #
+    # plt.plot(x, y)
+    # plt.savefig(output_fname, bbox_inches='tight')
 
 
 def get_padded_tokens_and_tags(df, tag2orth):
@@ -178,7 +215,7 @@ def get_padded_tokens_and_tags(df, tag2orth):
     padded_tags = pad_sequences(tag_orth, maxlen=max_tag_length, padding='post', value=tag2orth['O'])
     padded_tags = [to_categorical(tag_map, num_classes=len(tag2orth)) for tag_map in padded_tags]
 
-    return padded_tokens, padded_tags
+    return np.array(padded_tokens), np.array(padded_tags)
 
     # for index, row in df.iterrows():
     #     tokens = row['orth_mappings']
