@@ -1,0 +1,10 @@
+DATA_DIR=./data
+IN_MODEL_DIR=./trained-model
+OUT_MODEL_DIR=./trained-model
+DEV_SET=dev_set_task2
+TECH_SET=techniques_list_task1-2
+TEST_SET=test_set_task2
+TRAIN_SET=training_set_task2
+VOCAB_SET=vocab
+TRAIN_MODEL_LOSSES=losses-for-training-data
+MODEL_DESC=model-desc
