@@ -1,2 +1,10 @@
 test_set_task2-proc.txt
 training_set_task2-proc.txt
+glove.840B.300d.txt
+test_set_task2-converted.txt
+proj/data/test_set_task2-proc-overlap.txt
+proj/data/training_set_task2-converted.txt
+proj/data/training_set_task2-proc-overlap.txt
+proj/data/vocab-embeddings.npz
+proj/data/dev_set_task2-converted.txt
+proj/data/dev_set_task2-proc-overlap.txt
